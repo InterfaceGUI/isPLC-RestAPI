@@ -12,15 +12,16 @@ import os
 plc = isPLC_Package.isPLC.ClassCGS_isPLC(0x01)
 
 
-plc.open('/dev/ttyACM0')
-
+#plc.open('/dev/ttyACM0')
+plc.open('COM4')
 info = plc.Version
 
 print(info)
 api = Flask(__name__)
 
 
-@api.route('/Read/', methods=['GET'])
+
+@api.route('/Read', methods=['GET'])
 def get_Read():
     r = request.args
 
@@ -42,14 +43,14 @@ def get_Read():
     else:
         abort(400, 'Unknow args')
 
-@api.route('/Read/M/', methods=['GET'])
+@api.route('/Read/M', methods=['GET'])
 def get_ReadM():
     r = request.args
     print(r['n'])
     rrr = plc.Read_coil('M'+r['n'])
     return jsonify({'m':rrr}), 200
 
-@api.route('/Write/', methods=['GET'])
+@api.route('/Write', methods=['GET'])
 def get_Write():
     r = request.args
     rdict = r.to_dict()
@@ -69,13 +70,21 @@ def get_WriteReg():
     E = kist[0][0]
     ID = int(kist[0][1])
     V = bool(int(kist[1]))
-    plc.Write_coil(E,ID,B)
     plc.Write_Register(ID,V)
 
     return {'Status':'OK'} , 200
 
+helps = ('/help  Show API Helps <br><br>'
+         '/Read?q=x0  , /Read/?q=y1 , /Read/?q=d0 ; Return {"Y":True}... <br><br>'
+         '/Read/M?n=0 ; Return {"M0":True}... <br><br>'
+         '/Write?M0=1 , /Write?Y0=1 ; Return {"status":"OK"}... <br><br>'
+         '/Write/Reg?D0=1023 ,/Write/Reg?D1=0  ; Return {"status":"OK"}... <br><br>'
+        )
 
+@api.route('/help', methods=['GET'])
+def get_help():
 
+    return helps,200
 
 @api.route('/', methods=['GET'])
 def get_Information():
@@ -84,4 +93,5 @@ def get_Information():
 
 
 if __name__ == '__main__':
-    api.run(host='0.0.0.0', port=25565)
+    #api.run(host='0.0.0.0', port=25565)
+    api.run(host='127.0.0.1', port=25565)
