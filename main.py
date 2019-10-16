@@ -1,7 +1,9 @@
 from flask import abort
 from flask import Flask
 from flask import request, json, jsonify
+
 import isPLC_Package.isPLC
+
 import time
 import datetime
 import sys
@@ -10,7 +12,7 @@ import os
 plc = isPLC_Package.isPLC.ClassCGS_isPLC(0x01)
 
 
-plc.open('COM3')
+plc.open('/dev/ttyACM0')
 
 info = plc.Version
 
@@ -59,10 +61,26 @@ def get_Write():
 
     return r , 200
 
+@api.route('/Write/Reg', methods=['GET'])
+def get_Write():
+    r = request.args
+    rdict = r.to_dict()
+    kist = [(k,v) for k,v in rdict.items()][0]
+    E = kist[0][0]
+    ID = int(kist[0][1])
+    V = bool(int(kist[1]))
+    plc.Write_coil(E,ID,B)
+    plc.Write_Register(ID,V)
+
+    return r , 200
+
+
+
 
 @api.route('/', methods=['GET'])
 def get_Information():
-    return info, 403
+    return 'isPLC_RestAPI', 200
+
 
 
 if __name__ == '__main__':
