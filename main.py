@@ -59,10 +59,10 @@ def get_Write():
     B = bool(int(kist[1]))
     plc.Write_coil(E,ID,B)
 
-    return r , 200
+    return {'Status':'OK'} , 200
 
 @api.route('/Write/Reg', methods=['GET'])
-def get_Write():
+def get_WriteReg():
     r = request.args
     rdict = r.to_dict()
     kist = [(k,v) for k,v in rdict.items()][0]
@@ -72,7 +72,7 @@ def get_Write():
     plc.Write_coil(E,ID,B)
     plc.Write_Register(ID,V)
 
-    return r , 200
+    return {'Status':'OK'} , 200
 
 
 
@@ -84,4 +84,4 @@ def get_Information():
 
 
 if __name__ == '__main__':
-    api.run(host='192.168.0.102', port=25565)
+    api.run(host='0.0.0.0', port=25565)
