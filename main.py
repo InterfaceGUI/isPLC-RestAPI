@@ -1,6 +1,7 @@
 from flask import abort
 from flask import Flask
 from flask import request, json, jsonify
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import isPLC_Package.isPLC
 
@@ -8,12 +9,29 @@ import time
 import datetime
 import sys
 import os
+import socket
+
 
 plc = isPLC_Package.isPLC.ClassCGS_isPLC(0x01)
 
 
-#plc.open('/dev/ttyACM0')
-plc.open('COM4')
+def get_host_ip():
+
+    try:
+        so = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        so.connect(('8.8.8.8', 80))
+        ip = so.getsockname()[0]
+    finally:
+        so.close()
+    return ip
+
+def broadcastMyIP():
+    socketbroadcast.sendto(bytes('isPLC-RestAPI,' + myip, encoding = "utf8"), ('<broadcast>', 51049))
+
+
+
+plc.open('/dev/ttyACM0')
+#plc.open('COM4')
 info = plc.Version
 
 print(info)
@@ -93,5 +111,18 @@ def get_Information():
 
 
 if __name__ == '__main__':
-    #api.run(host='0.0.0.0', port=25565)
-    api.run(host='127.0.0.1', port=25565)
+    global myip
+    global socketbroadcast
+    socketbroadcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    socketbroadcast.bind(('', 0))
+    socketbroadcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+
+    myip = get_host_ip()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(broadcastMyIP, 'interval' , seconds=1, replace_existing=True)
+    scheduler.start()
+    scheduler.remove_executor
+    api.run(host='0.0.0.0', port=25565)
+    #api.run(host='192.168.0.102', port=25565)
+    
