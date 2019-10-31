@@ -47,16 +47,16 @@ def get_Read():
 
     if prefix == "x":
         rrr = plc.Read_coils('X')
-        return jsonify({'x':rrr}), 200
+        return rrr, 200
 
     elif prefix == "y":
         rrr = plc.Read_coils('Y')
-        return jsonify({'y':rrr}), 200
+        return rrr, 200
 
     elif prefix == "d":
         rrr = plc.ReadRegister(int(r['q'][1:]))
 
-        return jsonify({'D':rrr}), 200
+        return rrr, 200
 
     else:
         abort(400, 'Unknow args')
@@ -66,7 +66,7 @@ def get_ReadM():
     r = request.args
     print(r['n'])
     rrr = plc.Read_coil('M'+r['n'])
-    return jsonify({'m':rrr}), 200
+    return rrr, 200
 
 @api.route('/Write', methods=['GET'])
 def get_Write():
