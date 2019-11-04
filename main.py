@@ -47,16 +47,16 @@ def get_Read():
 
     if prefix == "x":
         rrr = plc.Read_coils('X')
-        return jsonify({'x':rrr}), 200
+        return rrr, 200
 
     elif prefix == "y":
         rrr = plc.Read_coils('Y')
-        return jsonify({'y':rrr}), 200
+        return rrr, 200
 
     elif prefix == "d":
         rrr = plc.ReadRegister(int(r['q'][1:]))
 
-        return jsonify({'D':rrr}), 200
+        return rrr, 200
 
     else:
         abort(400, 'Unknow args')
@@ -66,7 +66,7 @@ def get_ReadM():
     r = request.args
     print(r['n'])
     rrr = plc.Read_coil('M'+r['n'])
-    return jsonify({'m':rrr}), 200
+    return rrr, 200
 
 @api.route('/Write', methods=['GET'])
 def get_Write():
@@ -78,7 +78,7 @@ def get_Write():
     B = bool(int(kist[1]))
     plc.Write_coil(E,ID,B)
 
-    return {'Status':'OK'} , 200
+    return jsonify({'Status':'OK'}) , 200
 
 @api.route('/Write/Reg', methods=['GET'])
 def get_WriteReg():
@@ -90,7 +90,7 @@ def get_WriteReg():
     V = bool(int(kist[1]))
     plc.Write_Register(ID,V)
 
-    return {'Status':'OK'} , 200
+    return jsonify({'Status':'OK'}) , 200
 
 helps = ('/help  Show API Helps <br><br>'
          '/Read?q=x0  , /Read/?q=y1 , /Read/?q=d0 ; Return {"Y":True}... <br><br>'
@@ -123,6 +123,6 @@ if __name__ == '__main__':
     scheduler.add_job(broadcastMyIP, 'interval' , seconds=1, replace_existing=True)
     scheduler.start()
     scheduler.remove_executor
-    api.run(host='0.0.0.0', port=25565)
-    #api.run(host='192.168.0.102', port=25565)
+    api.run(host='0.0.0.0', port=25555)
+    #api.run(host='192.168.0.102', port=25555)
     
